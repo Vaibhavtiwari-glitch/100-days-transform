@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find Pills</title>
+</head>
+<body>
+    <img id="img" src="./public/Bg img.png" style="display:none;" onload="processImage()">
+    <div id="output"></div>
+    <script>
+        function processImage() {
+            const img = document.getElementById('img');
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+
+            let redX = 0, redY = 0, redCount = 0;
+            let blueX = 0, blueY = 0, blueCount = 0;
+
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    const i = (y * canvas.width + x) * 4;
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    
+                    // Simple heuristic for red pill (high red, low green/blue)
+                    if (r > 150 && g < 80 && b < 80) {
+                        redX += x;
+                        redY += y;
+                        redCount++;
+                    }
+                    
+                    // Simple heuristic for blue pill (high blue, low red/green)
+                    if (b > 150 && r < 80 && g < 150) {
+                        blueX += x;
+                        blueY += y;
+                        blueCount++;
+                    }
+                }
+            }
+
+            let result = '';
+            if (redCount > 0) {
+                const cx = redX / redCount;
+                const cy = redY / redCount;
+                const leftPercent = (cx / canvas.width) * 100;
+                const bottomPercent = ((canvas.height - cy) / canvas.height) * 100;
+                result += `Red Pill: left ${leftPercent.toFixed(2)}%, bottom ${bottomPercent.toFixed(2)}%\n`;
+            } else {
+                result += 'Red Pill not found\n';
+            }
+
+            if (blueCount > 0) {
+                const cx = blueX / blueCount;
+                const cy = blueY / blueCount;
+                const rightPercent = ((canvas.width - cx) / canvas.width) * 100;
+                const bottomPercent = ((canvas.height - cy) / canvas.height) * 100;
+                result += `Blue Pill: right ${rightPercent.toFixed(2)}%, bottom ${bottomPercent.toFixed(2)}%\n`;
+            } else {
+                result += 'Blue Pill not found\n';
+            }
+
+            document.getElementById('output').innerText = result;
+        }
+    </script>
+</body>
+</html>

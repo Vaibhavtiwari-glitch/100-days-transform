@@ -1,0 +1,128 @@
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.mission-label {
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.mission-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  padding: 8px 0;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.mission-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 1.125rem;
+}
+
+.mission-input:focus {
+  border-bottom-color: var(--accent-bright);
+  box-shadow: 0 10px 20px -10px var(--accent-glow);
+}
+
+.active-task-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.active-task-container:last-of-type {
+  border-bottom: none;
+}
+
+.task-text {
+  font-size: 1.25rem;
+  font-weight: 500;
+  transition: var(--transition);
+  max-width: 85%;
+  word-break: break-word;
+}
+
+.task-text.strike {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.checkbox-right {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-highlight);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.checkbox-right:hover {
+  border-color: var(--accent-medium);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.checkbox-right.checked {
+  background-color: var(--accent-bright);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 15px var(--accent-glow);
+  cursor: default;
+}
+
+.checkbox-right svg {
+  width: 18px;
+  height: 18px;
+  color: #000;
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.xp-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-bright);
+  text-shadow: 0 0 20px var(--accent-bright);
+  animation: floatUp 2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+@keyframes floatUp {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, -20px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+}

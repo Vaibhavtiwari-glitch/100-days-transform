@@ -1,0 +1,131 @@
+.grid-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grid-label {
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-box {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18px, 1fr));
+  gap: 6px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.grid-square {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s ease;
+}
+
+.grid-square:hover {
+  transform: scale(1.2);
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.grid-square.empty {
+  background-color: #222222;
+}
+
+.grid-square.empty:hover {
+  background-color: #333333;
+}
+
+.grid-square.partial {
+  background-color: var(--accent-medium);
+}
+
+.grid-square.partial:hover {
+  box-shadow: 0 0 10px var(--accent-medium);
+}
+
+.grid-square.full {
+  background-color: var(--accent-bright);
+}
+
+.grid-square.full:hover {
+  box-shadow: 0 0 12px var(--accent-bright);
+}
+
+.grid-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1A1A1A;
+  border: 1px solid var(--border-highlight);
+  padding: 12px;
+  border-radius: 8px;
+  width: max-content;
+  min-width: 120px;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: tooltipFade 0.2s forwards;
+}
+
+.grid-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--border-highlight) transparent transparent transparent;
+}
+
+.tooltip-day {
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip-stat {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+@keyframes tooltipFade {
+  from { opacity: 0; transform: translate(-50%, 5px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(14px, 1fr));
+    gap: 4px;
+  }
+}

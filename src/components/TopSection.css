@@ -1,0 +1,61 @@
+.top-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header-top {
+  margin-bottom: 8px;
+}
+
+.streak-badge {
+  background: rgba(255, 100, 0, 0.1);
+  color: #FF8C00;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid rgba(255, 100, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.streak-count {
+  letter-spacing: 0.02em;
+}
+
+.goal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goal-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(to right, #ffffff, #aaaaaa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.progress-container {
+  width: 100%;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-card);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--accent-medium);
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 10px var(--accent-glow);
+}

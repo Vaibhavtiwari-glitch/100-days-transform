@@ -1,0 +1,105 @@
+.share-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.share-label {
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.share-preview {
+  background: linear-gradient(135deg, #111111 0%, #0a0a0a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.share-preview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--accent-bright), transparent);
+  opacity: 0.5;
+}
+
+.share-header {
+  display: flex;
+  align-items: center;
+}
+
+.share-streak {
+  font-weight: 700;
+  color: #FF8C00;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+.share-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.share-goal-label {
+  letter-spacing: 0.1em;
+}
+
+.share-goal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.share-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.share-percent {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.share-logo {
+  font-size: 0.5rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.2em;
+  font-weight: 700;
+}
+
+.share-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-highlight);
+  color: var(--text-primary);
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.share-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.share-icon {
+  width: 16px;
+  height: 16px;
+}
