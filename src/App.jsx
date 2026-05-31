@@ -15,7 +15,20 @@ function App() {
   
   const [stats, setStats] = useState(() => {
     const saved = localStorage.getItem('userStats');
-    return saved ? JSON.parse(saved) : {
+    const today = new Date().toDateString();
+    
+    if (saved) {
+      const parsedStats = JSON.parse(saved);
+      if (parsedStats.lastUpdated !== today) {
+        if (Array.isArray(parsedStats.tasks)) {
+          parsedStats.tasks = parsedStats.tasks.map(t => ({ ...t, completed: false }));
+        }
+        parsedStats.lastUpdated = today;
+      }
+      return parsedStats;
+    }
+
+    return {
       streak: 0,
       day: 1,
       xp: 0,
@@ -24,6 +37,7 @@ function App() {
       completedDays: [],
       partialDays: [],
       tasks: [],
+      lastUpdated: today,
     };
   });
 
@@ -34,8 +48,9 @@ function App() {
   }, [goal])
 
   useEffect(() => {
-    localStorage.setItem('userStats', JSON.stringify(stats))
-  }, [stats])
+    const statsToSave = { ...stats, lastUpdated: new Date().toDateString() };
+    localStorage.setItem('userStats', JSON.stringify(statsToSave));
+  }, [stats]);
 
   const handleAddTask = (taskName) => {
     setStats(prev => {
@@ -170,6 +185,7 @@ function App() {
       completedDays: [],
       partialDays: [],
       tasks: [],
+      lastUpdated: new Date().toDateString(),
     });
     setIsResetModalOpen(false);
   };
