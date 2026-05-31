@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import './ProgressGrid.css';
 
-const ProgressGrid = ({ completedDays, activeDay }) => {
+const ProgressGrid = ({ calendarHistory = {}, activeDay }) => {
   const [hoveredDay, setHoveredDay] = useState(null);
   
   const days = Array.from({ length: 100 }, (_, i) => {
     const dayNum = i + 1;
+    const ratio = calendarHistory[dayNum];
+    
     let status = 'empty';
-    if (completedDays.includes(dayNum)) {
-      status = 'full';
-    } else if (activeDay === dayNum) {
-      status = 'partial';
-    }
+    if (ratio === 1) status = 'full';
+    else if (ratio >= 0.75) status = 'high';
+    else if (ratio >= 0.5) status = 'medium';
+    else if (ratio > 0) status = 'low';
+    else if (activeDay === dayNum) status = 'active';
     
     return {
       day: dayNum,
       status,
-      percent: completedDays.includes(dayNum) ? 100 : 0,
-      tasks: completedDays.includes(dayNum) ? 1 : 0
+      percent: ratio !== undefined ? Math.round(ratio * 100) : 0,
+      tasks: ratio !== undefined ? "Logged" : "None"
     };
   });
 
@@ -27,8 +29,13 @@ const ProgressGrid = ({ completedDays, activeDay }) => {
         <h2 className="text-secondary text-sm grid-label">100-DAY PROGRESS</h2>
         <div className="legend">
           <span className="legend-item"><div className="legend-box empty"></div> Pending</span>
-          <span className="legend-item"><div className="legend-box partial"></div> Active</span>
-          <span className="legend-item"><div className="legend-box full"></div> Complete</span>
+          <span className="legend-item"><div className="legend-box active"></div> Active</span>
+          <span className="legend-item" style={{gap: '2px'}}>
+            <div className="legend-box low"></div>
+            <div className="legend-box medium"></div>
+            <div className="legend-box high"></div>
+            <div className="legend-box full"></div> Complete
+          </span>
         </div>
       </div>
       
@@ -44,7 +51,6 @@ const ProgressGrid = ({ completedDays, activeDay }) => {
               <div className="grid-tooltip">
                 <div className="tooltip-day">Day {day.day}</div>
                 <div className="tooltip-stat">Completion: <span className={day.percent > 0 ? 'text-accent' : ''}>{day.percent}%</span></div>
-                <div className="tooltip-stat">Tasks: {day.tasks}</div>
               </div>
             )}
           </div>

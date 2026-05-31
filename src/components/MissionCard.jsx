@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './MissionCard.css';
 
-const MissionCard = ({ tasks = [], onAddTask, onCompleteTask }) => {
+const MissionCard = ({ tasks = [], onAddTask, onCompleteTask, onCompleteDay }) => {
   const [inputValue, setInputValue] = useState('');
   const [showXP, setShowXP] = useState(false);
 
@@ -48,6 +48,12 @@ const MissionCard = ({ tasks = [], onAddTask, onCompleteTask }) => {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
         />
+        
+        {tasks.length > 0 && (
+          <button className="complete-day-btn" onClick={onCompleteDay}>
+            Complete Day
+          </button>
+        )}
       </div>
 
       {showXP && (

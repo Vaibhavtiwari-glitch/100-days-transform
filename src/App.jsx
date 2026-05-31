@@ -15,17 +15,9 @@ function App() {
   
   const [stats, setStats] = useState(() => {
     const saved = localStorage.getItem('userStats');
-    const today = new Date().toDateString();
     
     if (saved) {
-      const parsedStats = JSON.parse(saved);
-      if (parsedStats.lastUpdated !== today) {
-        if (Array.isArray(parsedStats.tasks)) {
-          parsedStats.tasks = parsedStats.tasks.map(t => ({ ...t, completed: false }));
-        }
-        parsedStats.lastUpdated = today;
-      }
-      return parsedStats;
+      return JSON.parse(saved);
     }
 
     return {
@@ -36,8 +28,8 @@ function App() {
       percent: 0,
       completedDays: [],
       partialDays: [],
+      calendar_history: {},
       tasks: [],
-      lastUpdated: today,
     };
   });
 
@@ -48,8 +40,7 @@ function App() {
   }, [goal])
 
   useEffect(() => {
-    const statsToSave = { ...stats, lastUpdated: new Date().toDateString() };
-    localStorage.setItem('userStats', JSON.stringify(statsToSave));
+    localStorage.setItem('userStats', JSON.stringify(stats));
   }, [stats]);
 
   const handleAddTask = (taskName) => {
@@ -164,6 +155,31 @@ function App() {
     });
   };
 
+  const handleCompleteDay = () => {
+    setStats(prev => {
+      const currentTasks = prev.tasks || [];
+      if (currentTasks.length === 0) return prev;
+      
+      const totalTasks = currentTasks.length;
+      const completedTasks = currentTasks.filter(t => t.completed).length;
+      const ratio = completedTasks / totalTasks;
+      
+      const currentDay = prev.day || 1;
+      
+      const newHistory = {
+        ...(prev.calendar_history || {}),
+        [currentDay]: ratio
+      };
+      
+      return {
+        ...prev,
+        calendar_history: newHistory,
+        tasks: [],
+        day: currentDay + 1
+      };
+    });
+  };
+
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   const handleResetClick = () => {
@@ -184,8 +200,8 @@ function App() {
       percent: 0,
       completedDays: [],
       partialDays: [],
+      calendar_history: {},
       tasks: [],
-      lastUpdated: new Date().toDateString(),
     });
     setIsResetModalOpen(false);
   };
@@ -215,11 +231,12 @@ function App() {
           tasks={stats.tasks || []} 
           onAddTask={handleAddTask} 
           onCompleteTask={handleCompleteTask} 
+          onCompleteDay={handleCompleteDay}
         />
         <TransformationStats level={stats.level} levelProgress={stats.levelProgress || 0} percent={stats.percent} />
       </div>
       
-      <ProgressGrid completedDays={stats.completedDays} partialDays={stats.partialDays} />
+      <ProgressGrid calendarHistory={stats.calendar_history || {}} activeDay={stats.day} />
       
       <div className="main-grid">
         <ActivityTimeline />
