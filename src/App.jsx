@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './index.css'
+import { supabase } from './supabaseClient'
 import GoalSetting from './components/GoalSetting'
 import TopSection from './components/TopSection'
 import MissionCard from './components/MissionCard'
@@ -16,11 +17,7 @@ function App() {
   const [stats, setStats] = useState(() => {
     const saved = localStorage.getItem('userStats');
     
-    if (saved) {
-      return JSON.parse(saved);
-    }
-
-    return {
+    let parsed = {
       streak: 0,
       day: 1,
       xp: 0,
@@ -28,10 +25,54 @@ function App() {
       percent: 0,
       completedDays: [],
       partialDays: [],
-      calendar_history: {},
-      tasks: [],
     };
+
+    if (saved) {
+      parsed = { ...parsed, ...JSON.parse(saved) };
+    }
+
+    parsed.calendar_history = {};
+    parsed.tasks = [];
+
+    return parsed;
   });
+
+  useEffect(() => {
+    const fetchSupabaseData = async () => {
+      try {
+        const { data: tasksData, error: tasksError } = await supabase
+          .from('daily_tasks')
+          .select('*');
+        
+        if (tasksError) throw tasksError;
+
+        const { data: historyData, error: historyError } = await supabase
+          .from('calendar_history')
+          .select('*');
+          
+        if (historyError) throw historyError;
+        
+        const historyMap = {};
+        if (historyData) {
+          historyData.forEach(item => {
+            historyMap[item.day] = item.ratio;
+          });
+        }
+
+        setStats(prev => ({
+          ...prev,
+          tasks: tasksData || [],
+          calendar_history: historyMap
+        }));
+      } catch (err) {
+        console.error("Error fetching Supabase data:", err);
+      }
+    };
+    
+    if (hasChosenPath) {
+      fetchSupabaseData();
+    }
+  }, [hasChosenPath]);
 
   useEffect(() => {
     if (goal) {
@@ -40,10 +81,22 @@ function App() {
   }, [goal])
 
   useEffect(() => {
-    localStorage.setItem('userStats', JSON.stringify(stats));
+    const statsToSave = { ...stats };
+    delete statsToSave.tasks;
+    delete statsToSave.calendar_history;
+    localStorage.setItem('userStats', JSON.stringify(statsToSave));
   }, [stats]);
 
-  const handleAddTask = (taskName) => {
+  const handleAddTask = async (taskName) => {
+    const newTask = { text: taskName, completed: false };
+
+    try {
+      const { error } = await supabase.from('daily_tasks').insert([newTask]);
+      if (error) console.error("Supabase insert error:", error);
+    } catch(err) {
+      console.error(err);
+    }
+
     setStats(prev => {
       try {
         const currentTasks = Array.isArray(prev.tasks) ? prev.tasks : [];
@@ -51,7 +104,6 @@ function App() {
         const currentPartialDays = Array.isArray(prev.partialDays) ? prev.partialDays : [];
         const currentDay = prev.day || 1;
 
-        const newTask = { id: Date.now(), text: taskName, completed: false };
         const newTasks = [...currentTasks, newTask];
         
         const newCompletedDays = currentCompletedDays.filter(d => d !== currentDay);
@@ -97,7 +149,17 @@ function App() {
     });
   };
 
-  const handleCompleteTask = (taskId) => {
+  const handleCompleteTask = async (taskId) => {
+    try {
+      const { error } = await supabase
+        .from('daily_tasks')
+        .update({ completed: true })
+        .eq('id', taskId);
+      if (error) console.error("Supabase update error:", error);
+    } catch(err) {
+      console.error(err);
+    }
+
     setStats(prev => {
       try {
         const currentTasks = Array.isArray(prev.tasks) ? prev.tasks : [];
@@ -155,17 +217,35 @@ function App() {
     });
   };
 
-  const handleCompleteDay = () => {
+  const handleCompleteDay = async () => {
+    const currentTasks = stats.tasks || [];
+    if (currentTasks.length === 0) return;
+    
+    const totalTasks = currentTasks.length;
+    const completedTasks = currentTasks.filter(t => t.completed).length;
+    const ratio = completedTasks / totalTasks;
+    
+    const currentDay = stats.day || 1;
+
+    try {
+      const { error: historyError } = await supabase
+        .from('calendar_history')
+        .insert([{ day: currentDay, ratio }]);
+      if (historyError) console.error("Supabase history error:", historyError);
+
+      const taskIds = currentTasks.map(t => t.id);
+      if (taskIds.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('daily_tasks')
+          .delete()
+          .in('id', taskIds);
+        if (deleteError) console.error("Supabase delete error:", deleteError);
+      }
+    } catch (err) {
+      console.error("Error in complete day:", err);
+    }
+
     setStats(prev => {
-      const currentTasks = prev.tasks || [];
-      if (currentTasks.length === 0) return prev;
-      
-      const totalTasks = currentTasks.length;
-      const completedTasks = currentTasks.filter(t => t.completed).length;
-      const ratio = completedTasks / totalTasks;
-      
-      const currentDay = prev.day || 1;
-      
       const newHistory = {
         ...(prev.calendar_history || {}),
         [currentDay]: ratio
@@ -186,7 +266,14 @@ function App() {
     setIsResetModalOpen(true);
   };
 
-  const confirmReset = () => {
+  const confirmReset = async () => {
+    try {
+      await supabase.from('daily_tasks').delete().neq('id', 0);
+      await supabase.from('calendar_history').delete().neq('day', 0);
+    } catch (err) {
+      console.error(err);
+    }
+
     localStorage.removeItem('hasChosenPath');
     localStorage.removeItem('userGoal');
     localStorage.removeItem('userStats');
