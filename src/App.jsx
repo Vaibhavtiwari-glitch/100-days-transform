@@ -16,7 +16,7 @@ function App() {
   
   const [stats, setStats] = useState(() => {
     const saved = localStorage.getItem('userStats');
-    
+
     let parsed = {
       streak: 0,
       day: 1,
@@ -25,14 +25,23 @@ function App() {
       percent: 0,
       completedDays: [],
       partialDays: [],
+      calendar_history: {},
+      tasks: [],
     };
 
     if (saved) {
-      parsed = { ...parsed, ...JSON.parse(saved) };
+      try {
+        const savedStats = JSON.parse(saved);
+        parsed = {
+          ...parsed,
+          ...savedStats,
+          calendar_history: savedStats.calendar_history || {},
+          tasks: Array.isArray(savedStats.tasks) ? savedStats.tasks : []
+        };
+      } catch (err) {
+        console.error('Error loading saved stats:', err);
+      }
     }
-
-    parsed.calendar_history = {};
-    parsed.tasks = [];
 
     return parsed;
   });
@@ -81,10 +90,7 @@ function App() {
   }, [goal])
 
   useEffect(() => {
-    const statsToSave = { ...stats };
-    delete statsToSave.tasks;
-    delete statsToSave.calendar_history;
-    localStorage.setItem('userStats', JSON.stringify(statsToSave));
+    localStorage.setItem('userStats', JSON.stringify(stats));
   }, [stats]);
 
   const handleAddTask = async (taskName) => {
