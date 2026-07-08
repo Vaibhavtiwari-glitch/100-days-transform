@@ -9,6 +9,7 @@ import ProgressGrid from './components/ProgressGrid'
 import ActivityTimeline from './components/ActivityTimeline'
 import ShareCard from './components/ShareCard'
 import IntroAnimation from './components/IntroAnimation'
+import { normalizeTasks, updateTaskCompletion } from './utils/taskState'
 
 function App() {
   const [goal, setGoal] = useState(() => localStorage.getItem('userGoal') || '')
@@ -70,7 +71,7 @@ function App() {
 
         setStats(prev => ({
           ...prev,
-          tasks: tasksData || [],
+          tasks: normalizeTasks(tasksData || []),
           calendar_history: historyMap
         }));
       } catch (err) {
@@ -105,12 +106,12 @@ function App() {
 
     setStats(prev => {
       try {
-        const currentTasks = Array.isArray(prev.tasks) ? prev.tasks : [];
+        const currentTasks = normalizeTasks(prev.tasks);
         const currentCompletedDays = Array.isArray(prev.completedDays) ? prev.completedDays : [];
         const currentPartialDays = Array.isArray(prev.partialDays) ? prev.partialDays : [];
         const currentDay = prev.day || 1;
 
-        const newTasks = [...currentTasks, newTask];
+        const newTasks = [...currentTasks, { ...newTask, id: newTask.id || `task-${Date.now()}-${Math.random().toString(16).slice(2)}` }];
         
         const newCompletedDays = currentCompletedDays.filter(d => d !== currentDay);
         const newPartialDays = newTasks.some(t => t.completed) 
@@ -168,12 +169,12 @@ function App() {
 
     setStats(prev => {
       try {
-        const currentTasks = Array.isArray(prev.tasks) ? prev.tasks : [];
+        const currentTasks = normalizeTasks(prev.tasks);
         const currentCompletedDays = Array.isArray(prev.completedDays) ? prev.completedDays : [];
         const currentPartialDays = Array.isArray(prev.partialDays) ? prev.partialDays : [];
         const currentDay = prev.day || 1;
 
-        const newTasks = currentTasks.map(t => t.id === taskId ? { ...t, completed: true } : t);
+        const newTasks = updateTaskCompletion(currentTasks, taskId);
         
         const totalTasks = newTasks.length;
         const completedTasks = newTasks.filter(t => t.completed).length;
